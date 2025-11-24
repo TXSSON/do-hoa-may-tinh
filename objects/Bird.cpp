@@ -4,8 +4,14 @@
 
 Bird::Bird(glm::vec3 centerPos, float r, float startAngle)
     : center(centerPos), radius(r), flightAngle(startAngle),
-      flightSpeed(0.3f), wingFlapTime(0.0f), wingFlapSpeed(4.0f)
+      flightSpeed(0.3f), wingFlapTime(0.0f), wingFlapSpeed(8.0f), // Faster wings
+      state(FLYING), baseHeight(centerPos.y), height(centerPos.y),
+      groundTime(0.0f), flightTime(0.0f)
 {
+    // Randomize landing time (10-30 seconds)
+    nextLandingTime = 10.0f + (rand() % 200) / 10.0f;
+    maxGroundTime = 5.0f + (rand() % 50) / 10.0f; // 5-10 seconds on ground
+
     // Body - plump pigeon body (pigeons are rounder)
     body = Primitives::createSphere(0.3f, 20, 20);
     
@@ -25,9 +31,10 @@ Bird::Bird(glm::vec3 centerPos, float r, float startAngle)
     // Initialize position
     position = center + glm::vec3(
         radius * std::cos(flightAngle),
-        0.0f,
+        0.0f, // Relative to center Y
         radius * std::sin(flightAngle)
     );
+    position.y = height;
 }
 
 Bird::~Bird()
@@ -42,22 +49,76 @@ Bird::~Bird()
 
 void Bird::update(float deltaTime)
 {
-    // Update flight angle (circular motion)
-    flightAngle += flightSpeed * deltaTime;
+    // Update flight angle (circular motion) - always move forward unless on ground
+    if (state != ON_GROUND) {
+        flightAngle += flightSpeed * deltaTime;
+        
+        // Wrap angle
+        if (flightAngle > 2.0f * M_PI)
+            flightAngle -= 2.0f * M_PI;
+            
+        // Update wing flapping
+        wingFlapTime += wingFlapSpeed * deltaTime;
+    } else {
+        // On ground: occasional small movements or peck?
+        // For now just stop flapping
+        wingFlapTime = 0; 
+    }
     
-    // Wrap angle
-    if (flightAngle > 2.0f * M_PI)
-        flightAngle -= 2.0f * M_PI;
+    // State Machine
+    switch (state) {
+        case FLYING:
+            flightTime += deltaTime;
+            // Return to cruising altitude if needed
+            if (height < baseHeight) {
+                height += 2.0f * deltaTime;
+                if (height > baseHeight) height = baseHeight;
+            }
+            
+            // Check if it's time to land
+            if (flightTime > nextLandingTime) {
+                state = LANDING;
+                flightTime = 0;
+            }
+            break;
+            
+        case LANDING:
+            // Descend
+            height -= 3.0f * deltaTime; // Descent speed
+            if (height <= 0.5f) { // Ground level (approx)
+                height = 0.5f;
+                state = ON_GROUND;
+                groundTime = 0;
+            }
+            break;
+            
+        case ON_GROUND:
+            groundTime += deltaTime;
+            if (groundTime > maxGroundTime) {
+                state = TAKING_OFF;
+                // Reset next landing time
+                nextLandingTime = 15.0f + (rand() % 200) / 10.0f;
+            }
+            break;
+            
+        case TAKING_OFF:
+            // Ascend
+            height += 4.0f * deltaTime; // Ascent speed
+            if (height >= baseHeight) {
+                height = baseHeight;
+                state = FLYING;
+            }
+            break;
+    }
     
-    // Calculate new position on circle
-    position = center + glm::vec3(
-        radius * std::cos(flightAngle),
-        0.0f,
-        radius * std::sin(flightAngle)
-    );
+    // Calculate new position
+    // X and Z based on circle, Y based on height
+    float currentRadius = radius;
+    // When landing/on ground, maybe spiral in slightly? keeping simple for now
     
-    // Update wing flapping
-    wingFlapTime += wingFlapSpeed * deltaTime;
+    position.x = center.x + currentRadius * std::cos(flightAngle);
+    position.z = center.z + currentRadius * std::sin(flightAngle);
+    position.y = height;
 }
 
 glm::mat4 Bird::getBodyTransform() const

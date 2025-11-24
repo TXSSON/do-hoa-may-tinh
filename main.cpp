@@ -644,7 +644,7 @@ int main()
 {
     // =====GLFW Init=====
     srand(static_cast<unsigned int>(time(0))); // Seed random number generator
-    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11); // Commented out for Docker compatibility
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -930,7 +930,8 @@ int main()
 
         birds.push_back(new Bird(glm::vec3(0.0f, 20.0f, -10.0f), 30.0f, 0.0f));
         birds.push_back(new Bird(glm::vec3(0.0f, 25.0f, -10.0f), 35.0f, 3.14f));
-        birds.push_back(new Bird(glm::vec3(0.0f, 18.0f, -10.0f), 25.0f, 1.57f));
+        // Reduced to 2 birds as requested
+        // birds.push_back(new Bird(glm::vec3(0.0f, 18.0f, -10.0f), 25.0f, 1.57f));
 
 
         // Create Trees - All behind mausoleum and grandstands (Z < -15)

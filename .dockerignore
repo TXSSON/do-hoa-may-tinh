@@ -1,0 +1,7 @@
+build/
+.git/
+.vscode/
+.DS_Store
+*.o
+*.a
+DoAnApp

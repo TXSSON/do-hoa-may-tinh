@@ -12,6 +12,13 @@
 class Bird
 {
 public:
+    enum State {
+        FLYING,
+        LANDING,
+        ON_GROUND,
+        TAKING_OFF
+    };
+
     Mesh *body;
     Mesh *head;
     Mesh *beak;
@@ -41,6 +48,15 @@ private:
     float flightSpeed;       // Angular velocity
     float wingFlapTime;      // For wing animation
     float wingFlapSpeed;     // Wing flap frequency
+    
+    // New properties for landing behavior
+    State state;
+    float height;            // Current height from ground
+    float baseHeight;        // Cruising altitude
+    float groundTime;        // Time spent on ground
+    float maxGroundTime;     // How long to stay on ground
+    float flightTime;        // Time spent flying
+    float nextLandingTime;   // When to land next
 };
 
 #endif
