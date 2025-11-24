@@ -1,28 +1,57 @@
 cmake_minimum_required(VERSION 3.10)
 project(DoAnDoHoa)
 
-# Đặt chuẩn C++
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Tìm các thư viện đã cài bằng Homebrew
+# OpenGL, GLFW, GLM
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 
-# Thêm thư mục "glad/include" để tìm file "glad.h"
+# GTK3 và libdecor
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+include_directories(${GTK3_INCLUDE_DIRS})
+link_directories(${GTK3_LIBRARY_DIRS})
+add_definitions(${GTK3_CFLAGS_OTHER})
+
+# Thư mục GLAD
 include_directories(glad/include)
 
-# Tạo file thực thi (executable)
+# Thư mục Models (Người 2)
+include_directories(models)
+
+# Thư mục Objects
+include_directories(objects)
+
+# Thư mục Core (Người 1)
+include_directories(core)
+
+# Tạo executable
 add_executable(
-    DoAnApp     # Tên chương trình của bạn
+    DoAnApp
     main.cpp
-    glad/src/glad.c # Phải build cả file .c của GLAD
+    glad/src/glad.c
+    models/Mesh.cpp
+    models/Texture.cpp
+    models/Primitives.cpp
+    objects/Lang.cpp
+    objects/CotCo.cpp
+    objects/StreetLight.cpp
+    objects/Guard.cpp
+    objects/Cloud.cpp
+    objects/Bird.cpp
+    objects/Tree.cpp
+    objects/Fence.cpp
+    core/TimeOfDay.cpp
 )
 
-# Link các thư viện cần thiết
+# Link thư viện
 target_link_libraries(
     DoAnApp
-    glfw        # Thư viện GLFW
-    ${OPENGL_LIBRARIES} # Thư viện OpenGL của hệ thống
+    glfw
+    ${OPENGL_LIBRARIES}
+    ${GTK3_LIBRARIES}      # Thêm GTK3
+    decor-0                 # Link libdecor
 )
