@@ -32,8 +32,8 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 // Settings
-const unsigned int SCR_WIDTH = 1200;
-const unsigned int SCR_HEIGHT = 800;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 1000;
 
 // Camera
 Camera camera(glm::vec3(0.0f, 30.0f, 70.0f)); // Centered in yard, elevated for better view

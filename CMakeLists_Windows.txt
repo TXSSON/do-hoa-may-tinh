@@ -1,0 +1,58 @@
+cmake_minimum_required(VERSION 3.10)
+project(DoAnDoHoa)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# OpenGL, GLFW, GLM
+find_package(OpenGL REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(glm REQUIRED)
+
+# Thư mục GLAD
+include_directories(glad/include)
+
+# Thư mục Models
+include_directories(models)
+
+# Thư mục Objects
+include_directories(objects)
+
+# Thư mục Core
+include_directories(core)
+
+# Tạo executable
+add_executable(
+    DoAnApp
+    main.cpp
+    glad/src/glad.c
+    models/Mesh.cpp
+    models/Texture.cpp
+    models/Primitives.cpp
+    objects/Lang.cpp
+    objects/CotCo.cpp
+    objects/StreetLight.cpp
+    objects/Guard.cpp
+    objects/Cloud.cpp
+    objects/Bird.cpp
+    objects/Tree.cpp
+    objects/Fence.cpp
+    core/TimeOfDay.cpp
+)
+
+# Link thư viện
+target_link_libraries(
+    DoAnApp
+    glfw
+    ${OPENGL_LIBRARIES}
+)
+
+# Copy assets to build directory (Windows specific helper)
+add_custom_command(TARGET DoAnApp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:DoAnApp>/assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/shaders
+        $<TARGET_FILE_DIR:DoAnApp>/shaders
+)
